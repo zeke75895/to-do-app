@@ -17,9 +17,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -106,5 +110,39 @@ class TaskControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("Task not found with id: 99"));
+    }
+
+    @Test
+    void update_returns200WithUpdatedBody() throws Exception {
+        TaskRequestDto request = new TaskRequestDto("Updated title", "desc", true, null);
+        TaskResponseDto response = new TaskResponseDto(
+                1L, "Updated title", "desc", true, null, LocalDateTime.now(), LocalDateTime.now());
+
+        when(taskService.update(eq(1L), any(TaskRequestDto.class))).thenReturn(response);
+
+        mockMvc.perform(put("/api/tasks/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Updated title"))
+                .andExpect(jsonPath("$.completed").value(true));
+    }
+
+    @Test
+    void toggleComplete_returns200WithFlippedFlag() throws Exception {
+        TaskResponseDto response = new TaskResponseDto(
+                1L, "Task", null, true, null, LocalDateTime.now(), LocalDateTime.now());
+
+        when(taskService.toggleComplete(1L)).thenReturn(response);
+
+        mockMvc.perform(patch("/api/tasks/1/complete"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.completed").value(true));
+    }
+
+    @Test
+    void delete_returns204NoContent() throws Exception {
+        mockMvc.perform(delete("/api/tasks/1"))
+                .andExpect(status().isNoContent());
     }
 }
