@@ -101,6 +101,37 @@ function renderTasks(tasks) {
     }
 }
 
+taskForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(taskForm);
+    const payload = {
+        title: formData.get('title').trim(),
+        description: formData.get('description').trim() || null,
+        completed: false,
+        dueDate: formData.get('dueDate') || null,
+    };
+
+    try {
+        const response = await fetch(API_BASE, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            showError(await extractErrorMessage(response));
+            return;
+        }
+
+        clearError();
+        taskForm.reset();
+        fetchTasks(currentFilter);
+    } catch {
+        showError('Could not reach the server. Is it running?');
+    }
+});
+
 filterButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
         filterButtons.forEach((b) => b.classList.remove('active'));
@@ -108,6 +139,41 @@ filterButtons.forEach((btn) => {
         currentFilter = btn.dataset.filter;
         fetchTasks(currentFilter);
     });
+});
+
+taskList.addEventListener('click', async (event) => {
+    const item = event.target.closest('.task-item');
+    if (!item) return;
+    const id = item.dataset.id;
+
+    if (event.target.classList.contains('task-toggle')) {
+        try {
+            const response = await fetch(`${API_BASE}/${id}/complete`, { method: 'PATCH' });
+            if (!response.ok) {
+                showError(await extractErrorMessage(response));
+                return;
+            }
+            clearError();
+            fetchTasks(currentFilter);
+        } catch {
+            showError('Could not reach the server. Is it running?');
+        }
+        return;
+    }
+
+    if (event.target.classList.contains('task-delete')) {
+        try {
+            const response = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+            if (!response.ok) {
+                showError(await extractErrorMessage(response));
+                return;
+            }
+            clearError();
+            fetchTasks(currentFilter);
+        } catch {
+            showError('Could not reach the server. Is it running?');
+        }
+    }
 });
 
 fetchTasks(currentFilter);
