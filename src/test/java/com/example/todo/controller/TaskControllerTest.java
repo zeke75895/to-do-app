@@ -2,6 +2,7 @@ package com.example.todo.controller;
 
 import com.example.todo.dto.TaskRequestDto;
 import com.example.todo.dto.TaskResponseDto;
+import com.example.todo.exception.TaskNotFoundException;
 import com.example.todo.service.TaskService;
 import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -13,9 +14,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -70,5 +73,38 @@ class TaskControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.fieldErrors.title").value("Title is required"));
+    }
+
+    @Test
+    void getAll_returns200WithTaskList() throws Exception {
+        TaskResponseDto task = new TaskResponseDto(
+                1L, "Task", null, false, null, LocalDateTime.now(), LocalDateTime.now());
+        when(taskService.getAll(null, null, null)).thenReturn(List.of(task));
+
+        mockMvc.perform(get("/api/tasks"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].title").value("Task"));
+    }
+
+    @Test
+    void getById_returns200_whenTaskExists() throws Exception {
+        TaskResponseDto task = new TaskResponseDto(
+                1L, "Task", null, false, null, LocalDateTime.now(), LocalDateTime.now());
+        when(taskService.getById(1L)).thenReturn(task);
+
+        mockMvc.perform(get("/api/tasks/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1));
+    }
+
+    @Test
+    void getById_returns404_whenTaskDoesNotExist() throws Exception {
+        when(taskService.getById(99L)).thenThrow(new TaskNotFoundException(99L));
+
+        mockMvc.perform(get("/api/tasks/99"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("Task not found with id: 99"));
     }
 }
