@@ -3,38 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo App</title>
+    <title>TODO.SYS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <main class="container">
-        <h1>Todo App</h1>
+        <header class="retro-border header-panel">
+            <div class="header-top">
+                <div>
+                    <p class="header-kicker">*** SPRINGBOOT TASK MANAGER v1.0 ***</p>
+                    <h1 class="crt-glow cursor-blink header-title">TODO.SYS</h1>
+                </div>
+                <div class="header-status">
+                    <div>SYS: ONLINE</div>
+                    <div>MEM: 640K OK</div>
+                    <div>TIME: <span id="clock">00:00:00</span></div>
+                    <div class="header-status-accent">TASKS: <span id="stat-total-inline">0</span> | DONE: <span id="stat-done-inline">0</span></div>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-label-row">
+                    <span>COMPLETION</span>
+                    <span id="progress-percent" class="progress-percent">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+            </div>
+        </header>
 
         <div id="error-banner" class="error-banner" hidden></div>
 
-        <form id="task-form" class="task-form">
-            <div class="form-row">
-                <label for="title">Title</label>
-                <input type="text" id="title" name="title" maxlength="100" required>
-            </div>
-            <div class="form-row">
-                <label for="description">Description</label>
-                <textarea id="description" name="description" maxlength="500"></textarea>
-            </div>
-            <div class="form-row">
-                <label for="dueDate">Due date</label>
-                <input type="date" id="dueDate" name="dueDate">
-            </div>
-            <button type="submit">Add Task</button>
-        </form>
+        <section class="retro-border input-panel">
+            <div class="panel-heading">C:\SPRINGBOOT\TASKS&gt; ADD NEW RECORD</div>
+            <form id="task-form" class="task-form">
+                <div class="task-form-row">
+                    <label class="sr-only" for="title">Task description</label>
+                    <input type="text" id="title" name="title" class="retro-input title-input" placeholder="ENTER TASK DESCRIPTION..." maxlength="100" required>
+                    <button type="submit" class="retro-btn add-btn">[ADD]</button>
+                </div>
+                <div class="task-form-row">
+                    <label class="sr-only" for="description">Notes</label>
+                    <input type="text" id="description" name="description" class="retro-input desc-input" placeholder="NOTES (OPTIONAL)..." maxlength="500">
+                    <label class="due-label" for="dueDate">DUE:</label>
+                    <input type="date" id="dueDate" name="dueDate" class="retro-input due-input">
+                </div>
+            </form>
+        </section>
 
         <div class="filter-bar">
-            <button type="button" class="filter-btn active" data-filter="all">All</button>
-            <button type="button" class="filter-btn" data-filter="pending">Pending</button>
-            <button type="button" class="filter-btn" data-filter="done">Done</button>
+            <button type="button" class="retro-btn filter-btn active" data-filter="all">[ALL]</button>
+            <button type="button" class="retro-btn filter-btn" data-filter="pending">[ACTIVE]</button>
+            <button type="button" class="retro-btn filter-btn" data-filter="done">[DONE]</button>
         </div>
 
-        <ul id="task-list" class="task-list"></ul>
+        <section class="retro-border list-panel">
+            <div class="list-heading">
+                <span id="list-count">RECORD LIST — 0 ITEM(S)</span>
+                <button type="button" id="purge-btn" class="retro-btn retro-btn-accent purge-btn" hidden>[PURGE DONE]</button>
+            </div>
+            <div id="empty-state" class="empty-state" hidden>
+                <div class="empty-state-title">NO RECORDS FOUND</div>
+                <div class="empty-state-sub">SYSTEM IDLE — AWAITING INPUT</div>
+            </div>
+            <ul id="task-list" class="task-list"></ul>
+        </section>
+
+        <section class="retro-border stats-panel">
+            <div>TOTAL: <span id="stat-total" class="stat-value">0</span></div>
+            <div>ACTIVE: <span id="stat-active" class="stat-value">0</span></div>
+            <div>DONE: <span id="stat-done" class="stat-value">0</span></div>
+            <div>OVERDUE: <span id="stat-overdue" class="stat-value-accent">0</span></div>
+            <div>WITH DUE DATE: <span id="stat-due" class="stat-value">0</span></div>
+            <div>COMPLETION: <span id="stat-completion" class="stat-value-blue">0%</span></div>
+        </section>
+
+        <footer class="footer">
+            <div>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+            <div class="footer-line">SPRINGBOOT TODO MANAGER v1.0 — (C) 1984 RETRO SYSTEMS INC.</div>
+            <div>PRESS [ADD] TO INSERT RECORD — DOUBLE-CLICK TASK TO EDIT</div>
+        </footer>
     </main>
 
     <script src="app.js"></script>
